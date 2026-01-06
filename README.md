@@ -53,12 +53,26 @@ curl -X POST http://localhost:8000/congestion \
 ```
 
 ## 拥堵判断规则
-- 距离阈值：默认 50 米内视为同一聚类（可在 `CongestionService` 初始化时配置）。
-- 最小聚类规模：默认 3 辆车以上才认为是拥堵组。
+- 距离阈值：默认 50 米内视为同一聚类（`radius_meters` 参数）。
+- 最小聚类规模：默认 3 辆车以上才认为是拥堵组（`minimum_cluster_size` 参数）。
 - 拥堵等级：
-  - `high`：车辆数量 ≥ 8，或平均速度 < 5 km/h。
-  - `medium`：车辆数量 ≥ 5，或平均速度 < 15 km/h。
+  - `high`：车辆数量 ≥ 8（`high_vehicle_threshold`），或平均速度 < 5 km/h（`high_speed_threshold`）。
+  - `medium`：车辆数量 ≥ 5（`medium_vehicle_threshold`），或平均速度 < 15 km/h（`medium_speed_threshold`）。
   - `low`：其他情况。
+
+上述阈值均可在初始化 `CongestionService` 时调整，例如：
+```python
+from app.service import CongestionService
+
+service = CongestionService(
+    radius_meters=60,
+    minimum_cluster_size=4,
+    high_vehicle_threshold=10,
+    medium_vehicle_threshold=6,
+    high_speed_threshold=8,
+    medium_speed_threshold=18,
+)
+```
 
 ## 运行测试
 ```bash
