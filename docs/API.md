@@ -40,6 +40,11 @@
         "latitude": 40.00023333333333,
         "longitude": -74.0002
       },
+      "boundary": [
+        {"latitude": 40.0, "longitude": -74.0},
+        {"latitude": 40.0004, "longitude": -74.0003},
+        {"latitude": 40.0003, "longitude": -74.0002}
+      ],
       "vehicle_ids": ["car-001", "car-002", "car-003"],
       "congestion_level": "medium"
     }
@@ -59,6 +64,7 @@
 - `congested_regions`: 拥堵区域数组，按检测到的顺序返回。
   - `region_id` (integer): 区域编号，从 1 开始。
   - `centroid` (object): 拥堵区域重心坐标。
+  - `boundary` (array): 该区域的凸包坐标列表，按顺时针/逆时针顺序返回。
   - `vehicle_ids` (array): 属于该拥堵区域的车辆 ID 列表。
   - `congestion_level` (string): 拥堵等级，`low` / `medium` / `high`。
 

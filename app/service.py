@@ -27,9 +27,11 @@ class CongestionService:
             congestion_level = self._derive_congestion_level(
                 len(cluster.vehicle_ids), cluster.average_speed
             )
+            boundary = self._build_boundary(cluster)
             region = CongestionRegion(
                 region_id=index + 1,
                 centroid=cluster.centroid,
+                boundary=boundary,
                 vehicle_ids=cluster.vehicle_ids,
                 congestion_level=congestion_level,
             )
@@ -126,6 +128,53 @@ class CongestionService:
         if cluster_size >= 5 or (average_speed is not None and average_speed < 15):
             return "medium"
         return "low"
+
+    def _build_boundary(
+        self, cluster: Sequence[VehicleObservation]
+    ) -> List[Coordinate]:
+        points = [
+            (ob.coordinate.longitude, ob.coordinate.latitude) for ob in cluster
+        ]
+        unique_points = sorted(set(points))
+
+        # Fallback for degenerate cases
+        if len(unique_points) == 1:
+            lon, lat = unique_points[0]
+            return [Coordinate(latitude=lat, longitude=lon)]
+        if len(unique_points) == 2:
+            (lon1, lat1), (lon2, lat2) = unique_points
+            return [
+                Coordinate(latitude=lat1, longitude=lon1),
+                Coordinate(latitude=lat2, longitude=lon1),
+                Coordinate(latitude=lat2, longitude=lon2),
+                Coordinate(latitude=lat1, longitude=lon2),
+            ]
+
+        def cross(
+            origin: tuple[float, float],
+            a: tuple[float, float],
+            b: tuple[float, float],
+        ) -> float:
+            return (a[0] - origin[0]) * (b[1] - origin[1]) - (a[1] - origin[1]) * (
+                b[0] - origin[0]
+            )
+
+        lower: List[tuple[float, float]] = []
+        for point in unique_points:
+            while len(lower) >= 2 and cross(lower[-2], lower[-1], point) <= 0:
+                lower.pop()
+            lower.append(point)
+
+        upper: List[tuple[float, float]] = []
+        for point in reversed(unique_points):
+            while len(upper) >= 2 and cross(upper[-2], upper[-1], point) <= 0:
+                upper.pop()
+            upper.append(point)
+
+        hull = lower[:-1] + upper[:-1]
+        return [
+            Coordinate(latitude=lat, longitude=lon) for lon, lat in hull
+        ]
 
     def _haversine_distance(
         self,
