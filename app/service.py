@@ -15,9 +15,21 @@ class ClusterResult:
 
 
 class CongestionService:
-    def __init__(self, radius_meters: float = 50.0, minimum_cluster_size: int = 3):
+    def __init__(
+        self,
+        radius_meters: float = 50.0,
+        minimum_cluster_size: int = 3,
+        high_vehicle_threshold: int = 8,
+        medium_vehicle_threshold: int = 5,
+        high_speed_threshold: float = 5,
+        medium_speed_threshold: float = 15,
+    ):
         self.radius_meters = radius_meters
         self.minimum_cluster_size = minimum_cluster_size
+        self.high_vehicle_threshold = high_vehicle_threshold
+        self.medium_vehicle_threshold = medium_vehicle_threshold
+        self.high_speed_threshold = high_speed_threshold
+        self.medium_speed_threshold = medium_speed_threshold
 
     def detect_congestion(self, observations: Sequence[VehicleObservation]) -> List[CongestionRegion]:
         clusters = self._cluster_observations(observations)
@@ -121,9 +133,13 @@ class CongestionService:
         self, cluster_size: int, average_speed: Optional[float]
     ) -> str:
         # Priority on traffic size, then speed; conservative defaults when speed unknown
-        if cluster_size >= 8 or (average_speed is not None and average_speed < 5):
+        if cluster_size >= self.high_vehicle_threshold or (
+            average_speed is not None and average_speed < self.high_speed_threshold
+        ):
             return "high"
-        if cluster_size >= 5 or (average_speed is not None and average_speed < 15):
+        if cluster_size >= self.medium_vehicle_threshold or (
+            average_speed is not None and average_speed < self.medium_speed_threshold
+        ):
             return "medium"
         return "low"
 

@@ -49,3 +49,42 @@ def test_detects_multiple_clusters():
     assert len(regions) == 2
     levels = {region.region_id: region.congestion_level for region in regions}
     assert set(levels.values()) == {"medium", "high"}
+
+
+def test_respects_configured_vehicle_thresholds():
+    service = CongestionService(
+        radius_meters=60,
+        minimum_cluster_size=3,
+        medium_vehicle_threshold=4,
+        high_vehicle_threshold=6,
+    )
+    observations = [
+        VehicleObservation(vehicle_id="A", coordinate=Coordinate(latitude=40.0, longitude=-74.0), speed_kph=25),
+        VehicleObservation(vehicle_id="B", coordinate=Coordinate(latitude=40.0003, longitude=-74.0002), speed_kph=24),
+        VehicleObservation(vehicle_id="C", coordinate=Coordinate(latitude=40.0004, longitude=-74.0004), speed_kph=24),
+        VehicleObservation(vehicle_id="D", coordinate=Coordinate(latitude=40.0005, longitude=-74.0005), speed_kph=24),
+    ]
+
+    regions = service.detect_congestion(observations)
+
+    assert len(regions) == 1
+    assert regions[0].congestion_level == "medium"
+
+
+def test_respects_configured_speed_thresholds():
+    service = CongestionService(
+        radius_meters=60,
+        minimum_cluster_size=3,
+        high_speed_threshold=20,
+        medium_speed_threshold=30,
+    )
+    observations = [
+        VehicleObservation(vehicle_id="A", coordinate=Coordinate(latitude=40.0, longitude=-74.0), speed_kph=18),
+        VehicleObservation(vehicle_id="B", coordinate=Coordinate(latitude=40.0003, longitude=-74.0002), speed_kph=17),
+        VehicleObservation(vehicle_id="C", coordinate=Coordinate(latitude=40.0004, longitude=-74.0004), speed_kph=19),
+    ]
+
+    regions = service.detect_congestion(observations)
+
+    assert len(regions) == 1
+    assert regions[0].congestion_level == "high"
