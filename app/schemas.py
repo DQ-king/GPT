@@ -61,6 +61,9 @@ class CongestionRequest(BaseModel):
 class CongestionRegion(BaseModel):
     region_id: int
     centroid: Coordinate
+    boundary: List[Coordinate] = Field(
+        ..., description="Convex hull boundary of the congested region"
+    )
     vehicle_ids: List[str]
     congestion_level: str
 

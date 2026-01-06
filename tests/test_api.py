@@ -41,3 +41,5 @@ def test_congestion_endpoint_returns_regions():
     region = body["congested_regions"][0]
     assert set(region["vehicle_ids"]) == {"A", "B", "C"}
     assert region["congestion_level"] == "medium"
+    assert "boundary" in region
+    assert len(region["boundary"]) >= 3

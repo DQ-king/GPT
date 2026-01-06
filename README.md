@@ -40,6 +40,11 @@ curl -X POST http://localhost:8000/congestion \
     {
       "region_id": 1,
       "centroid": {"latitude": 40.00023333333333, "longitude": -74.00016666666667},
+      "boundary": [
+        {"latitude": 40.0, "longitude": -74.0},
+        {"latitude": 40.0004, "longitude": -74.0003},
+        {"latitude": 40.0003, "longitude": -74.0002}
+      ],
       "vehicle_ids": ["A", "B", "C"],
       "congestion_level": "medium"
     }

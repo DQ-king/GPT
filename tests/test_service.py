@@ -18,6 +18,9 @@ def test_detects_single_cluster_with_centroid_and_level():
     assert region.congestion_level == "medium"
     assert 39.999 < region.centroid.latitude < 40.001
     assert -74.001 < region.centroid.longitude < -73.999
+    assert len(region.boundary) >= 3
+    assert all(-90 <= point.latitude <= 90 for point in region.boundary)
+    assert all(-180 <= point.longitude <= 180 for point in region.boundary)
 
 
 def test_excludes_small_groups_below_threshold():
