@@ -12,6 +12,7 @@ class ClusterResult:
     centroid: Coordinate
     vehicle_ids: List[str]
     average_speed: Optional[float]
+    observations: Sequence[VehicleObservation]
 
 
 class CongestionService:
@@ -20,7 +21,7 @@ class CongestionService:
         radius_meters: float = 50.0,
         minimum_cluster_size: int = 3,
         high_vehicle_threshold: int = 8,
-        medium_vehicle_threshold: int = 5,
+        medium_vehicle_threshold: int = 3,
         high_speed_threshold: float = 5,
         medium_speed_threshold: float = 15,
     ):
@@ -39,7 +40,7 @@ class CongestionService:
             congestion_level = self._derive_congestion_level(
                 len(cluster.vehicle_ids), cluster.average_speed
             )
-            boundary = self._build_boundary(cluster)
+            boundary = self._build_boundary(cluster.observations)
             region = CongestionRegion(
                 region_id=index + 1,
                 centroid=cluster.centroid,
@@ -93,6 +94,7 @@ class CongestionService:
                     centroid=centroid,
                     vehicle_ids=vehicle_ids,
                     average_speed=average_speed,
+                    observations=cluster,
                 )
             )
 
