@@ -14,5 +14,5 @@ def detect_congestion(request: CongestionRequest) -> CongestionResponse:
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
+def health():
     return {"status": "ok"}
